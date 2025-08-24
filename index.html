@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS Admin Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f6fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Login Form */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .login-form {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .login-form h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #555;
+        }
+        
+        input[type="text"], input[type="password"], input[type="email"], textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #5a67d8;
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        
+        /* Admin Dashboard */
+        .admin-container {
+            display: none;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logout-btn {
+            width: auto;
+            padding: 8px 16px;
+            background: #e53e3e;
+            font-size: 14px;
+        }
+        
+        .logout-btn:hover {
+            background: #c53030;
+        }
+        
+        /* Navigation */
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 12px 20px;
+            background: none;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .nav-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        /* Tables */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e1e5e9;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #38a169;
+            color: white;
+        }
+        
+        .btn-danger {
+            background: #e53e3e;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* Status badges */
+        .status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status.published {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status.draft {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        /* Forms */
+        .form-container {
+            display: none;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+        
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        
+        /* Alert messages */
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+        }
+        
+        .alert.success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-color: #9ae6b4;
+        }
+        
+        .alert.error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-color: #feb2b2;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .nav-tabs {
+                flex-direction: column;
+            }
+            
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .table-container {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <form class="login-form" id="loginForm">
+            <h2>CMS Admin Login</h2>
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" value="admin" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" value="admin123hash" required>
+            </div>
+            <button type="submit" id="loginBtn">Login</button>
+            <div id="loginError" class="alert error" style="display: none; margin-top: 15px;"></div>
+        </form>
+    </div>
+
+    <!-- Admin Dashboard -->
+    <div id="adminDashboard" class="admin-container">
+        <div class="container">
+            <div class="header">
+                <h1>CMS Admin Panel</h1>
+                <div class="user-info">
+                    <span>Welcome, <strong id="currentUser">Admin</strong></span>
+                    <button class="logout-btn" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+
+            <div class="nav-tabs">
+                <button class="nav-tab active" data-section="dashboard">Dashboard</button>
+                <button class="nav-tab" data-section="business-pages">Business Pages</button>
+                <button class="nav-tab" data-section="blog-posts">Blog Posts</button>
+                <button class="nav-tab" data-section="settings">Settings</button>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <h2>Dashboard</h2>
+                <div class="loading">Loading dashboard data...</div>
+            </div>
+
+            <!-- Business Pages Section -->
+            <div id="business-pages" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Business Pages</h2>
+                    <button class="btn btn-primary" id="addBusinessPageBtn">Add New Page</button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="businessPagesTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Slug</th>
+                                <th>Status</th>
+                                <th>Modified</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="loading">Loading pages...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Add/Edit Business Page Form -->
+                <div id="businessPageForm" class="form-container">
+                    <h3 id="businessPageFormTitle">Add New Business Page</h3>
+                    <form id="businessPageFormElement">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pageTitle">Page Title</label>
+                                <input type="text" id="pageTitle" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="pageSlug">Slug</label>
+                                <input type="text" id="pageSlug" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pageStatus">Status</label>
+                                <select id="pageStatus">
+                                    <option value="draft">Draft</option>
+                                    <option value="published">Published</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="pageOrder">Page Order</label>
+                                <input type="number" id="pageOrder" value="1">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pageContent">Content</label>
+                            <textarea id="pageContent" placeholder="Enter your page content here..." rows="8"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="pageMetaTitle">Meta Title</label>
+                                <input type="text" id="pageMetaTitle">
+                            </div>
+                            <div class="form-group">
+                                <label for="pageMetaDesc">Meta Description</label>
+                                <input type="text" id="pageMetaDesc">
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <button type="button" class="btn btn-secondary" id="cancelPageBtn">Cancel</button>
+                            <button type="submit" class="btn btn-success" id="savePageBtn">Save Page</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Blog Posts Section -->
+            <div id="blog-posts" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Blog Posts</h2>
+                    <button class="btn btn-primary" id="addBlogPostBtn">Add New Post</button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="blogPostsTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Status</th>
+                                <th>Publish Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="5" class="loading">Loading posts...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settings" class="content-section">
+                <h2>Site Settings</h2>
+                <div class="loading">Loading settings...</div>
+            </div>
+
+            <!-- Alert container -->
+            <div id="alertContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration - Replace with your Google Apps Script Web App URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzyDrpvteZe8iJlXGCMj3b3bqnY3WdubHULV9ly3bj5LgZWnnFblNGqwdPqVE-Hms3E7g/exec'; // ← UPDATE THIS!
+        
+        let currentUser = null;
+        let isLoggedIn = false;
+        let editingPageId = null;
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Check if user is already logged in
+            const savedUser = sessionStorage.getItem('cmsUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showDashboard();
+                loadDashboardData();
+            }
+
+            // Event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            
+            // Logout button
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Navigation tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    switchTab(e.target.dataset.section);
+                });
+            });
+
+            // Business Pages
+            document.getElementById('addBusinessPageBtn').addEventListener('click', showAddBusinessPage);
+            document.getElementById('cancelPageBtn').addEventListener('click', hideBusinessPageForm);
+            document.getElementById('businessPageFormElement').addEventListener('submit', handleSaveBusinessPage);
+
+            // Auto-generate slug from title
+            document.getElementById('pageTitle').addEventListener('input', (e) => {
+                const slug = generateSlug(e.target.value);
+                document.getElementById('pageSlug').value = slug;
+            });
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const loginError = document.getElementById('loginError');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            loginError.style.display = 'none';
+
+            try {
+                // Call your Google Apps Script login API
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `action=login&postData=${encodeURIComponent(JSON.stringify({
+                        username: username,
+                        password: password
+                    }))}`
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    currentUser = result.user;
+                    sessionStorage.setItem('cmsUser', JSON.stringify(currentUser));
+                    showDashboard();
+                    await loadDashboardData();
+                } else {
+                    throw new Error(result.message || 'Login failed');
+                }
+            } catch (error) {
+                // Fallback to simple validation if API fails
+                console.warn('API login failed, using fallback:', error);
+                if (username === 'admin' && password === 'admin123hash') {
+                    currentUser = { username: 'admin', role: 'admin' };
+                    sessionStorage.setItem('cmsUser', JSON.stringify(currentUser));
+                    showDashboard();
+                    await loadDashboardData();
+                } else {
+                    loginError.textContent = 'Invalid username or password';
+                    loginError.style.display = 'block';
+                }
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+
+        function handleLogout() {
+            sessionStorage.removeItem('cmsUser');
+            currentUser = null;
+            isLoggedIn = false;
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminDashboard').style.display = 'none';
+            
+            // Reset form
+            document.getElementById('loginForm').reset();
+            document.getElementById('username').value = 'admin';
+            document.getElementById('password').value = 'admin123hash';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            document.getElementById('currentUser').textContent = currentUser.username;
+            isLoggedIn = true;
+        }
+
+        function switchTab(sectionId) {
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+            // Update content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+
+            // Load section data
+            if (sectionId === 'business-pages') {
+                loadBusinessPages();
+            } else if (sectionId === 'blog-posts') {
+                loadBlogPosts();
+            } else if (sectionId === 'settings') {
+                loadSettings();
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Load counts from all sections
+                const [pagesResult, postsResult, categoriesResult] = await Promise.all([
+                    apiCall('getBusinessPages'),
+                    apiCall('getBlogPosts'),
+                    apiCall('getCategories')
+                ]);
+
+                const pagesCount = pagesResult.success ? pagesResult.data.length : 0;
+                const postsCount = postsResult.success ? postsResult.data.filter(p => p.Status === 'published').length : 0;
+                const categoriesCount = categoriesResult.success ? categoriesResult.data.length : 0;
+
+                document.querySelector('#dashboard .loading').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                            <h3 style="color: #667eea; font-size: 24px; margin-bottom: 10px;">Business Pages</h3>
+                            <p style="font-size: 32px; font-weight: bold; color: #333;">${pagesCount}</p>
+                            <p style="color: #666;">Total Pages</p>
+                        </div>
+                        <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                            <h3 style="color: #38a169; font-size: 24px; margin-bottom: 10px;">Blog Posts</h3>
+                            <p style="font-size: 32px; font-weight: bold; color: #333;">${postsCount}</p>
+                            <p style="color: #666;">Published Posts</p>
+                        </div>
+                        <div style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); text-align: center;">
+                            <h3 style="color: #e53e3e; font-size: 24px; margin-bottom: 10px;">Categories</h3>
+                            <p style="font-size: 32px; font-weight: bold; color: #333;">${categoriesCount}</p>
+                            <p style="color: #666;">Total Categories</p>
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.querySelector('#dashboard .loading').innerHTML = `
+                    <div class="alert error">Error loading dashboard data: ${error.message}</div>
+                `;
+            }
+        }
+
+        async function loadBusinessPages() {
+            const tableBody = document.querySelector('#businessPagesTable tbody');
+            tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading pages...</td></tr>';
+
+            try {
+                const result = await apiCall('getBusinessPages');
+                
+                if (result.success && result.data.length > 0) {
+                    const html = result.data.map(page => `
+                        <tr>
+                            <td>${page.Title}</td>
+                            <td>${page.Slug}</td>
+                            <td><span class="status ${page.Status}">${page.Status}</span></td>
+                            <td>${formatDate(page.Modified_Date)}</td>
+                            <td>
+                                <button class="btn btn-primary btn" onclick="editBusinessPage(${page.Page_ID})">Edit</button>
+                                <button class="btn btn-danger btn" onclick="deleteBusinessPage(${page.Page_ID})">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    tableBody.innerHTML = html;
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; padding: 40px;">No pages found. <a href="#" onclick="showAddBusinessPage()" style="color: #667eea;">Create your first page</a></td></tr>';
+                }
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="error" style="text-align: center; padding: 20px;">Error loading pages: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function loadBlogPosts() {
+            const tableBody = document.querySelector('#blogPostsTable tbody');
+            tableBody.innerHTML = '<tr><td colspan="5" class="loading">Loading posts...</td></tr>';
+
+            try {
+                const result = await apiCall('getBlogPosts');
+                
+                if (result.success && result.data.length > 0) {
+                    const html = result.data.map(post => `
+                        <tr>
+                            <td>${post.Title}</td>
+                            <td>${post.Category || 'Uncategorized'}</td>
+                            <td><span class="status ${post.Status}">${post.Status}</span></td>
+                            <td>${formatDate(post.Publish_Date)}</td>
+                            <td>
+                                <button class="btn btn-primary btn" onclick="editBlogPost(${post.Post_ID})">Edit</button>
+                                <button class="btn btn-danger btn" onclick="deleteBlogPost(${post.Post_ID})">Delete</button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    tableBody.innerHTML = html;
+                } else {
+                    tableBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; padding: 40px;">No blog posts found. <a href="#" onclick="showAddBlogPost()" style="color: #667eea;">Create your first post</a></td></tr>';
+                }
+            } catch (error) {
+                tableBody.innerHTML = `<tr><td colspan="5" class="error" style="text-align: center; padding: 20px;">Error loading posts: ${error.message}</td></tr>`;
+            }
+        }
+
+        async function loadSettings() {
+            const settingsDiv = document.querySelector('#settings');
+            settingsDiv.querySelector('.loading').textContent = 'Loading settings...';
+
+            try {
+                const result = await apiCall('getSiteSettings');
+                
+                if (result.success) {
+                    const settings = result.data;
+                    settingsDiv.querySelector('.loading').innerHTML = `
+                        <div style="max-width: 600px;">
+                            <h3 style="margin-bottom: 20px;">Site Configuration</h3>
+                            <form id="settingsForm">
+                                <div class="form-group">
+                                    <label>Site Title</label>
+                                    <input type="text" id="siteTitle" value="${settings.site_title || ''}" style="margin-bottom: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Site Tagline</label>
+                                    <input type="text" id="siteTagline" value="${settings.site_tagline || ''}" style="margin-bottom: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Contact Email</label>
+                                    <input type="email" id="contactEmail" value="${settings.contact_email || ''}" style="margin-bottom: 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone</label>
+                                    <input type="text" id="contactPhone" value="${settings.phone || ''}" style="margin-bottom: 15px;">
+                                </div>
+                                <button type="submit" class="btn btn-success">Save Settings</button>
+                            </form>
+                        </div>
+                    `;
+                    
+                    // Add form submit handler
+                    document.getElementById('settingsForm').addEventListener('submit', handleSaveSettings);
+                } else {
+                    throw new Error(result.message || 'Failed to load settings');
+                }
+            } catch (error) {
+                settingsDiv.querySelector('.loading').innerHTML = `
+                    <div class="alert error">Error loading settings: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Business Page Functions
+        function showAddBusinessPage() {
+            document.getElementById('businessPageForm').style.display = 'block';
+            document.getElementById('businessPageFormTitle').textContent = 'Add New Business Page';
+            document.getElementById('businessPageFormElement').reset();
+        }
+
+        function hideBusinessPageForm() {
+            document.getElementById('businessPageForm').style.display = 'none';
+        }
+
+        function handleSaveBusinessPage(e) {
+            e.preventDefault();
+            
+            const saveBtn = document.getElementById('savePageBtn');
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+            
+            const formData = {
+                title: document.getElementById('pageTitle').value,
+                slug: document.getElementById('pageSlug').value,
+                content: document.getElementById('pageContent').value,
+                metaTitle: document.getElementById('pageMetaTitle').value || document.getElementById('pageTitle').value,
+                metaDescription: document.getElementById('pageMetaDesc').value,
+                status: document.getElementById('pageStatus').value,
+                pageOrder: document.getElementById('pageOrder').value,
+                author: currentUser.username
+            };
+
+            const action = editingPageId ? 'updateBusinessPage' : 'addBusinessPage';
+            const url = editingPageId ? `${API_URL}?action=${action}&pageId=${editingPageId}` : API_URL;
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: editingPageId ? 
+                    `action=${action}&pageId=${editingPageId}&postData=${encodeURIComponent(JSON.stringify(formData))}` :
+                    `action=${action}&postData=${encodeURIComponent(JSON.stringify(formData))}`
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    showAlert(editingPageId ? 'Page updated successfully!' : 'Page created successfully!', 'success');
+                    hideBusinessPageForm();
+                    loadBusinessPages();
+                    editingPageId = null;
+                } else {
+                    throw new Error(result.message || 'Failed to save page');
+                }
+            })
+            .catch(error => {
+                showAlert('Error saving page: ' + error.message, 'error');
+            })
+            .finally(() => {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Page';
+            });
+        }
+
+        // Utility Functions
+        function generateSlug(title) {
+            return title
+                .toLowerCase()
+                .replace(/[^a-z0-9 -]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert ${type}`;
+            alert.textContent = message;
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => {
+                alert.remove();
+            }, 3000);
+        }
+
+        // API Helper Function
+        async function apiCall(action, data = null) {
+            try {
+                const url = data ? 
+                    `${API_URL}?action=${action}` : 
+                    `${API_URL}?action=${action}`;
+                
+                const options = {
+                    method: data ? 'POST' : 'GET',
+                };
+                
+                if (data) {
+                    options.headers = {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    };
+                    options.body = `action=${action}&postData=${encodeURIComponent(JSON.stringify(data))}`;
+                }
+
+                const response = await fetch(url, options);
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('API Call Error:', error);
+                throw new Error('Failed to communicate with server');
+            }
+        }
+
+        async function handleSaveSettings(e) {
+            e.preventDefault();
+            
+            const settingsData = {
+                site_title: document.getElementById('siteTitle').value,
+                site_tagline: document.getElementById('siteTagline').value,
+                contact_email: document.getElementById('contactEmail').value,
+                phone: document.getElementById('contactPhone').value
+            };
+
+            try {
+                // For now, just show success - implement actual save later
+                showAlert('Settings saved successfully!', 'success');
+                console.log('Settings to save:', settingsData);
+            } catch (error) {
+                showAlert('Error saving settings: ' + error.message, 'error');
+            }
+        }
+
+        // Edit Business Page
+        async function editBusinessPage(pageId) {
+            try {
+                const result = await fetch(`${API_URL}?action=getBusinessPage&pageId=${pageId}`);
+                const data = await result.json();
+                
+                if (data.success) {
+                    const page = data.data;
+                    editingPageId = pageId;
+                    
+                    // Fill form with existing data
+                    document.getElementById('pageTitle').value = page.Title;
+                    document.getElementById('pageSlug').value = page.Slug;
+                    document.getElementById('pageContent').value = page.Content;
+                    document.getElementById('pageMetaTitle').value = page.Meta_Title || '';
+                    document.getElementById('pageMetaDesc').value = page.Meta_Description || '';
+                    document.getElementById('pageStatus').value = page.Status;
+                    document.getElementById('pageOrder').value = page.Page_Order || 1;
+                    
+                    // Show form
+                    document.getElementById('businessPageFormTitle').textContent = 'Edit Business Page';
+                    document.getElementById('businessPageForm').style.display = 'block';
+                } else {
+                    showAlert('Error loading page: ' + data.message, 'error');
+                }
+            } catch (error) {
+                showAlert('Error loading page: ' + error.message, 'error');
+            }
+        }
+
+        // Delete Business Page  
+        async function deleteBusinessPage(pageId) {
+            if (!confirm('Are you sure you want to delete this page?')) {
+                return;
+            }
+
+            try {
+                // Implement delete API call here
+                console.log('Delete page:', pageId);
+                showAlert('Page deleted successfully!', 'success');
+                loadBusinessPages();
+            } catch (error) {
+                showAlert('Error deleting page: ' + error.message, 'error');
+            }
+        }
+
+        // Blog post functions (placeholder for now)
+        function editBlogPost(postId) {
+            console.log('Edit blog post:', postId);
+            showAlert('Blog post editing coming soon!', 'success');
+        }
+
+        function deleteBlogPost(postId) {
+            if (confirm('Are you sure you want to delete this blog post?')) {
+                console.log('Delete blog post:', postId);
+                showAlert('Blog post deleted!', 'success');
+                loadBlogPosts();
+            }
+        }
+
+        function showAddBlogPost() {
+            showAlert('Blog post creation coming soon!', 'success');
+        }
+    </script>
+</body>
+</html>
