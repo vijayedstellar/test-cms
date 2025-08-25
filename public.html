@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Business Website</title>
+    <meta name="description" content="Quality Products & Services">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏢</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #ffffff;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        .header {
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .mobile-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        /* Main Content */
+        .main {
+            padding: 4rem 0;
+        }
+        
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .content h1, .content h2, .content h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+        
+        .content h1 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #667eea;
+        }
+        
+        .content h2 {
+            font-size: 2rem;
+            margin-top: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #667eea;
+        }
+        
+        .content p {
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+        
+        .content ul, .content ol {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .content li {
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Blog Section */
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .blog-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .blog-card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .blog-card-content {
+            padding: 1.5rem;
+        }
+        
+        .blog-card h3 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            font-size: 1.3rem;
+        }
+        
+        .blog-card .meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .blog-card p {
+            color: #555;
+            margin-bottom: 1rem;
+        }
+        
+        .read-more {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: gap 0.3s;
+        }
+        
+        .read-more:hover {
+            gap: 1rem;
+        }
+        
+        /* Loading and Error States */
+        .loading {
+            text-align: center;
+            padding: 4rem 0;
+            color: #666;
+        }
+        
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 0;
+            color: #666;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #2d3748;
+            color: white;
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            color: #667eea;
+        }
+        
+        .footer-section p,
+        .footer-section a {
+            color: #a0aec0;
+            text-decoration: none;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .footer-section a:hover {
+            color: #667eea;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid #4a5568;
+            color: #a0aec0;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                flex-direction: column;
+                padding: 1rem;
+                gap: 0;
+            }
+            
+            .nav-menu.active {
+                display: flex;
+            }
+            
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .content h1 {
+                font-size: 2rem;
+            }
+            
+            .content h2 {
+                font-size: 1.5rem;
+            }
+            
+            .blog-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+        
+        /* Page Transitions */
+        .page-content {
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Custom Styles for Different Content Types */
+        .homepage .hero {
+            display: block;
+        }
+        
+        .not-homepage .hero {
+            display: none;
+        }
+        
+        .breadcrumb {
+            background: #f8f9fa;
+            padding: 1rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="container">
+            <div class="nav">
+                <a href="#" class="logo" id="siteLogo">My Business</a>
+                
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="#" class="nav-link active" data-page="home">Home</a></li>
+                    <li><a href="#" class="nav-link" data-page="about">About</a></li>
+                    <li><a href="#" class="nav-link" data-page="blog">Blog</a></li>
+                    <li><a href="#" class="nav-link" data-page="contact">Contact</a></li>
+                </ul>
+                
+                <button class="mobile-toggle" id="mobileToggle">
+                    ☰
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section (Home page only) -->
+    <section class="hero" id="heroSection">
+        <div class="container">
+            <h1 id="heroTitle">Welcome to My Business</h1>
+            <p id="heroDescription">Quality Products & Services for Your Success</p>
+            <a href="#" class="cta-button" data-page="about">Learn More</a>
+        </div>
+    </section>
+
+    <!-- Breadcrumb (non-home pages) -->
+    <div class="breadcrumb not-homepage" id="breadcrumb">
+        <div class="container">
+            <a href="#" data-page="home">Home</a> > <span id="breadcrumbCurrent">Page</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <div id="mainContent">
+                <div class="loading">Loading content...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3 id="footerTitle">My Business</h3>
+                    <p id="footerDescription">Quality products and services for your success.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Contact Info</h3>
+                    <p id="footerEmail">contact@mybusiness.com</p>
+                    <p id="footerPhone">(555) 123-4567</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <a href="#" data-page="home">Home</a>
+                    <a href="#" data-page="about">About</a>
+                    <a href="#" data-page="blog">Blog</a>
+                    <a href="#" data-page="contact">Contact</a>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 <span id="copyrightName">My Business</span>. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Configuration - Update with your Google Apps Script URL
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxryeNrN_rb8HWwgHqmhpn4k_TPuFgIm7NR9ACw87i1dcl1dr-QIcOc4xqf_Y22otdK/exec'; // ← UPDATE THIS!
+        
+        let siteData = {
+            pages: [],
+            posts: [],
+            settings: {},
+            currentPage: 'home'
+        };
+
+        // Initialize the website
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeWebsite();
+        });
+
+        async function initializeWebsite() {
+            // Load site data
+            await loadSiteData();
+            
+            // Set up navigation
+            setupNavigation();
+            
+            // Load initial page
+            const hash = window.location.hash.substr(1) || 'home';
+            loadPage(hash);
+            
+            // Handle browser back/forward
+            window.addEventListener('hashchange', () => {
+                const page = window.location.hash.substr(1) || 'home';
+                loadPage(page);
+            });
+        }
+
+        async function loadSiteData() {
+            try {
+                // Load site settings
+                const settingsResult = await apiCall('getSiteSettings');
+                if (settingsResult.success) {
+                    siteData.settings = settingsResult.data;
+                    updateSiteInfo();
+                }
+
+                // Load business pages
+                const pagesResult = await apiCall('getBusinessPages');
+                if (pagesResult.success) {
+                    siteData.pages = pagesResult.data.filter(page => page.Status === 'published');
+                }
+
+                // Load blog posts
+                const postsResult = await apiCall('getBlogPosts');
+                if (postsResult.success) {
+                    siteData.posts = postsResult.data.filter(post => post.Status === 'published');
+                }
+
+                console.log('Site data loaded:', siteData);
+            } catch (error) {
+                console.error('Error loading site data:', error);
+            }
+        }
+
+        function updateSiteInfo() {
+            const settings = siteData.settings;
+            
+            // Update page title and meta
+            document.title = settings.site_title || 'My Business Website';
+            document.querySelector('meta[name="description"]').setAttribute('content', 
+                settings.site_tagline || 'Quality Products & Services');
+
+            // Update header
+            document.getElementById('siteLogo').textContent = settings.site_title || 'My Business';
+            
+            // Update hero section
+            document.getElementById('heroTitle').textContent = `Welcome to ${settings.site_title || 'My Business'}`;
+            document.getElementById('heroDescription').textContent = settings.site_tagline || 'Quality Products & Services for Your Success';
+            
+            // Update footer
+            document.getElementById('footerTitle').textContent = settings.site_title || 'My Business';
+            document.getElementById('footerDescription').textContent = settings.site_tagline || 'Quality products and services for your success.';
+            document.getElementById('footerEmail').textContent = settings.contact_email || 'contact@mybusiness.com';
+            document.getElementById('footerPhone').textContent = settings.phone || '(555) 123-4567';
+            document.getElementById('copyrightName').textContent = settings.site_title || 'My Business';
+        }
+
+        function setupNavigation() {
+            // Add click handlers to all navigation links
+            document.querySelectorAll('[data-page]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = e.target.getAttribute('data-page');
+                    navigateToPage(page);
+                });
+            });
+
+            // Mobile menu toggle
+            document.getElementById('mobileToggle').addEventListener('click', () => {
+                document.getElementById('navMenu').classList.toggle('active');
+            });
+        }
+
+        function navigateToPage(page) {
+            window.location.hash = page;
+        }
+
+        function loadPage(page) {
+            // Update current page
+            siteData.currentPage = page;
+            
+            // Update navigation active state
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-page') === page) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Update body classes for styling
+            document.body.className = page === 'home' ? 'homepage' : 'not-homepage';
+            
+            // Update breadcrumb
+            if (page !== 'home') {
+                document.getElementById('breadcrumbCurrent').textContent = 
+                    page.charAt(0).toUpperCase() + page.slice(1);
+            }
+
+            // Load page content
+            switch(page) {
+                case 'home':
+                    loadHomePage();
+                    break;
+                case 'blog':
+                    loadBlogPage();
+                    break;
+                case 'about':
+                    loadBusinessPage('about');
+                    break;
+                case 'contact':
+                    loadContactPage();
+                    break;
+                default:
+                    // Try to load as business page or blog post
+                    loadDynamicPage(page);
+            }
+        }
+
+        function loadHomePage() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="page-content">
+                    <div class="content">
+                        <h2>Recent Blog Posts</h2>
+                        ${generateBlogGrid(siteData.posts.slice(0, 3))}
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadBlogPage() {
+            const content = document.getElementById('mainContent');
+            content.innerHTML = `
+                <div class="page-content">
+                    <div class="content">
+                        <h1>Blog</h1>
+                        ${generateBlogGrid(siteData.posts)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadBusinessPage(slug) {
+            const page = siteData.pages.find(p => p.Slug === slug);
+            const content = document.getElementById('mainContent');
+            
+            if (page) {
+                content.innerHTML = `
+                    <div class="page-content">
+                        <div class="content">
+                            <h1>${page.Title}</h1>
+                            <div>${page.Content}</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="page-content">
+                        <div class="error">
+                            <h2>Page Not Found</h2>
+                            <p>The page you're looking for doesn't exist.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function loadContactPage() {
+            const settings = siteData.settings;
+            const content = document.getElementById('mainContent');
+            
+            content.innerHTML = `
+                <div class="page-content">
+                    <div class="content">
+                        <h1>Contact Us</h1>
+                        <p>Get in touch with us for more information about our products and services.</p>
+                        
+                        <h2>Contact Information</h2>
+                        <p><strong>Email:</strong> ${settings.contact_email || 'contact@mybusiness.com'}</p>
+                        <p><strong>Phone:</strong> ${settings.phone || '(555) 123-4567'}</p>
+                        
+                        <h2>Send us a Message</h2>
+                        <p>We'd love to hear from you. Contact us using the information above or through your preferred communication method.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function loadDynamicPage(slug) {
+            // Try to find a business page or blog post with this slug
+            const businessPage = siteData.pages.find(p => p.Slug === slug);
+            const blogPost = siteData.posts.find(p => p.Slug === slug);
+            
+            if (businessPage) {
+                loadBusinessPage(slug);
+            } else if (blogPost) {
+                loadBlogPost(blogPost);
+            } else {
+                // 404 page
+                const content = document.getElementById('mainContent');
+                content.innerHTML = `
+                    <div class="page-content">
+                        <div class="error">
+                            <h2>Page Not Found</h2>
+                            <p>The page you're looking for doesn't exist.</p>
+                            <p><a href="#home" data-page="home">Return to Home</a></p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function loadBlogPost(post) {
+            const content = document.getElementById('mainContent');
+            const publishDate = new Date(post.Publish_Date).toLocaleDateString();
+            
+            content.innerHTML = `
+                <div class="page-content">
+                    <div class="content">
+                        <h1>${post.Title}</h1>
+                        <div class="meta" style="color: #666; margin-bottom: 2rem;">
+                            Published on ${publishDate} | Category: ${post.Category}
+                        </div>
+                        <div>${post.Content}</div>
+                        
+                        <div style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #eee;">
+                            <a href="#blog" data-page="blog">← Back to Blog</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateBlogGrid(posts) {
+            if (!posts || posts.length === 0) {
+                return `
+                    <div class="empty-state">
+                        <h3>No blog posts yet</h3>
+                        <p>Check back soon for updates!</p>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="blog-grid">
+                    ${posts.map(post => {
+                        const publishDate = new Date(post.Publish_Date).toLocaleDateString();
+                        const excerpt = post.Excerpt || 'Read more about this topic...';
+                        
+                        return `
+                            <article class="blog-card">
+                                <div class="blog-card-image">
+                                    ${post.Title.charAt(0)}
+                                </div>
+                                <div class="blog-card-content">
+                                    <h3>${post.Title}</h3>
+                                    <div class="meta">${publishDate} • ${post.Category}</div>
+                                    <p>${excerpt}</p>
+                                    <a href="#${post.Slug}" class="read-more" data-page="${post.Slug}">
+                                        Read More →
+                                    </a>
+                                </div>
+                            </article>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // API Helper Function
+        async function apiCall(action) {
+            try {
+                if (API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    // Return demo data if API not configured
+                    return getDemoData(action);
+                }
+
+                const response = await fetch(`${API_URL}?action=${action}`);
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('API Call Error:', error);
+                // Return demo data as fallback
+                return getDemoData(action);
+            }
+        }
+
+        // Demo data for testing without API
+        function getDemoData(action) {
+            switch(action) {
+                case 'getSiteSettings':
+                    return {
+                        success: true,
+                        data: {
+                            site_title: 'My Business Website',
+                            site_tagline: 'Quality Products & Services',
+                            contact_email: 'contact@mybusiness.com',
+                            phone: '(555) 123-4567'
+                        }
+                    };
+                case 'getBusinessPages':
+                    return {
+                        success: true,
+                        data: [
+                            {
+                                Page_ID: 1,
+                                Title: 'About Us',
+                                Slug: 'about',
+                                Content: '<p>Welcome to our company. We have been serving customers for over 10 years with quality products and excellent service.</p><p>Our team is dedicated to providing the best solutions for your needs.</p>',
+                                Status: 'published'
+                            }
+                        ]
+                    };
+                case 'getBlogPosts':
+                    return {
+                        success: true,
+                        data: [
+                            {
+                                Post_ID: 1,
+                                Title: 'Welcome to Our Blog',
+                                Slug: 'welcome-to-our-blog',
+                                Content: '<p>This is our first blog post. We\'re excited to share updates, tips, and news with our community.</p><p>Stay tuned for regular updates!</p>',
+                                Excerpt: 'Welcome to our new blog where we\'ll share company updates and industry insights.',
+                                Category: 'News',
+                                Status: 'published',
+                                Publish_Date: '2024-08-20'
+                            }
+                        ]
+                    };
+                default:
+                    return { success: false, message: 'Demo mode' };
+            }
+        }
+    </script>
+</body>
+</html>
