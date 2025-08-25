@@ -1119,16 +1119,51 @@
             loginError.style.display = 'none';
 
             try {
-                // Simple authentication for demo
-                if (username === 'admin' && password === 'admin123') {
-                    currentUser = { username: 'admin', role: 'administrator' };
+                // Authenticate against Google Sheets database
+                const formData = new FormData();
+                formData.append('action', 'authenticateUser');
+                formData.append('username', username);
+                formData.append('password', password);
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const responseText = await response.text();
+                console.log('Login response:', responseText);
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    // Fallback authentication for development
+                    if (username === 'admin' && (password === 'admin123hash' || password === 'admin123')) {
+                        result = {
+                            success: true,
+                            user: { username: 'admin', role: 'admin', email: 'admin@mysite.com' }
+                        };
+                    } else {
+                        throw new Error('Invalid response from server. Please check your API configuration.');
+                    }
+                }
+
+                if (result.success && result.user) {
+                    // Check if user is active
+                    if (result.user.status && result.user.status !== 'active') {
+                        throw new Error('Account is not active. Please contact administrator.');
+                    }
+
+                    currentUser = result.user;
                     sessionStorage.setItem('cmsUser', JSON.stringify(currentUser));
                     showDashboard();
                     await loadDashboardData();
                 } else {
-                    throw new Error('Invalid username or password');
+                    throw new Error(result.message || 'Invalid username or password');
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 loginError.textContent = error.message;
                 loginError.style.display = 'block';
             } finally {
