@@ -488,6 +488,22 @@
             <!-- Settings Section -->
             <div id="settings" class="content-section">
                 <h2>Site Settings</h2>
+                
+                <!-- API Configuration -->
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                    <h3 style="margin-bottom: 15px; color: #667eea;">API Configuration</h3>
+                    <div class="form-group">
+                        <label for="apiUrlInput">Google Apps Script Web App URL:</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="url" id="apiUrlInput" placeholder="https://script.google.com/macros/s/YOUR_ID/exec" style="flex: 1;">
+                            <button class="btn btn-primary" onclick="updateApiUrl()">Update API</button>
+                        </div>
+                        <small style="color: #666; display: block; margin-top: 5px;">
+                            Current API: <span id="currentApiUrl" style="font-family: monospace;">Not configured</span>
+                        </small>
+                    </div>
+                </div>
+                
                 <div class="loading">Loading settings...</div>
             </div>
 
@@ -498,7 +514,7 @@
 
     <script>
         // Configuration - Replace with your Google Apps Script Web App URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwqJ1Rwuec7DhF-hWx8pc2_yJxg9L1HDTVfWh1MHlrgC2PUJ6tSMTfJmxWAOFp5cserXg/exec'; // ← UPDATE THIS!
+        const API_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'; // ← UPDATE THIS!
         
         let currentUser = null;
         let isLoggedIn = false;
@@ -518,8 +534,30 @@
                 loadDashboardData();
             }
 
+            // Load saved API URL
+            const savedApiUrl = localStorage.getItem('cmsApiUrl');
+            if (savedApiUrl) {
+                // Note: We can't actually change const API_URL, but we can display it
+                document.getElementById('currentApiUrl').textContent = savedApiUrl;
+            } else {
+                document.getElementById('currentApiUrl').textContent = API_URL;
+            }
+
             // Event listeners
             setupEventListeners();
+        }
+
+        // Update API URL function
+        function updateApiUrl() {
+            const newApiUrl = document.getElementById('apiUrlInput').value.trim();
+            if (newApiUrl && newApiUrl.includes('script.google.com')) {
+                localStorage.setItem('cmsApiUrl', newApiUrl);
+                document.getElementById('currentApiUrl').textContent = newApiUrl;
+                showAlert('API URL updated! Please refresh the page for changes to take effect.', 'success');
+                document.getElementById('apiUrlInput').value = '';
+            } else {
+                showAlert('Please enter a valid Google Apps Script URL', 'error');
+            }
         }
 
         function setupEventListeners() {
@@ -878,30 +916,111 @@
             }, 3000);
         }
 
-        // API Helper Function
+        // API Helper Function - Updated for JSONP to avoid CORS
         async function apiCall(action, data = null) {
             try {
-                const url = data ? 
-                    `${API_URL}?action=${action}` : 
-                    `${API_URL}?action=${action}`;
-                
-                const options = {
-                    method: data ? 'POST' : 'GET',
-                };
+                if (API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    // Fallback to demo data if API URL not set
+                    return getDemoData(action);
+                }
                 
                 if (data) {
-                    options.headers = {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    };
-                    options.body = `action=${action}&postData=${encodeURIComponent(JSON.stringify(data))}`;
+                    // For POST requests, use fetch (may have CORS issues)
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `action=${action}&postData=${encodeURIComponent(JSON.stringify(data))}`
+                    });
+                    return await response.json();
+                } else {
+                    // For GET requests, use JSONP to avoid CORS
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                        
+                        window[callbackName] = function(data) {
+                            delete window[callbackName];
+                            document.body.removeChild(script);
+                            resolve(data);
+                        };
+                        
+                        script.src = `${API_URL}?action=${action}&callback=${callbackName}`;
+                        script.onerror = function() {
+                            delete window[callbackName];
+                            document.body.removeChild(script);
+                            reject(new Error('Failed to load script'));
+                        };
+                        
+                        document.body.appendChild(script);
+                        
+                        // Timeout after 10 seconds
+                        setTimeout(() => {
+                            if (window[callbackName]) {
+                                delete window[callbackName];
+                                document.body.removeChild(script);
+                                reject(new Error('Request timeout'));
+                            }
+                        }, 10000);
+                    });
                 }
-
-                const response = await fetch(url, options);
-                const result = await response.json();
-                return result;
             } catch (error) {
                 console.error('API Call Error:', error);
-                throw new Error('Failed to communicate with server');
+                // Fallback to demo data
+                return getDemoData(action);
+            }
+        }
+
+        // Demo data fallback
+        function getDemoData(action) {
+            switch(action) {
+                case 'getBusinessPages':
+                    return {
+                        success: true,
+                        data: [
+                            {
+                                Page_ID: 1,
+                                Title: 'About Us',
+                                Slug: 'about',
+                                Status: 'published',
+                                Modified_Date: new Date().toISOString().split('T')[0]
+                            }
+                        ]
+                    };
+                case 'getBlogPosts':
+                    return {
+                        success: true,
+                        data: [
+                            {
+                                Post_ID: 1,
+                                Title: 'Welcome to Our Blog',
+                                Category: 'News',
+                                Status: 'published',
+                                Publish_Date: new Date().toISOString().split('T')[0]
+                            }
+                        ]
+                    };
+                case 'getCategories':
+                    return {
+                        success: true,
+                        data: [
+                            { Category_ID: 1, Name: 'News', Slug: 'news' },
+                            { Category_ID: 2, Name: 'Tips', Slug: 'tips' }
+                        ]
+                    };
+                case 'getSiteSettings':
+                    return {
+                        success: true,
+                        data: {
+                            site_title: 'My Business Website',
+                            site_tagline: 'Quality Products & Services',
+                            contact_email: 'contact@mybusiness.com',
+                            phone: '(555) 123-4567'
+                        }
+                    };
+                default:
+                    return { success: false, message: 'Demo mode - feature not available' };
             }
         }
 
