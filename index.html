@@ -514,7 +514,7 @@
 
     <script>
         // Configuration - Replace with your Google Apps Script Web App URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwqJ1Rwuec7DhF-hWx8pc2_yJxg9L1HDTVfWh1MHlrgC2PUJ6tSMTfJmxWAOFp5cserXg/exec'; // ← UPDATE THIS!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbyY_6F4HN6DqMQh4pb0fwgEwMSG82dP_Izi5-JgRTmkyFVI2PmJvHsh0J8HGMGdYJP5Tg/exec'; // ← UPDATE THIS!
         
         let currentUser = null;
         let isLoggedIn = false;
@@ -856,20 +856,57 @@
                 author: currentUser.username
             };
 
+            console.log('Saving page data:', formData);
+
+            // Check if API URL is configured
+            if (API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                showAlert('Please configure your Google Apps Script URL in Settings first!', 'error');
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Page';
+                return;
+            }
+
             const action = editingPageId ? 'updateBusinessPage' : 'addBusinessPage';
-            const url = editingPageId ? `${API_URL}?action=${action}&pageId=${editingPageId}` : API_URL;
             
-            fetch(url, {
+            // Use the saved API URL if available
+            const savedApiUrl = localStorage.getItem('cmsApiUrl') || API_URL;
+            
+            console.log('Using API URL:', savedApiUrl);
+            console.log('Action:', action);
+            
+            // Create form data for Google Apps Script
+            const postBody = new FormData();
+            postBody.append('action', action);
+            if (editingPageId) {
+                postBody.append('pageId', editingPageId);
+            }
+            
+            // Add each form field as a separate parameter
+            Object.keys(formData).forEach(key => {
+                postBody.append(key, formData[key]);
+            });
+            
+            fetch(savedApiUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: editingPageId ? 
-                    `action=${action}&pageId=${editingPageId}&postData=${encodeURIComponent(JSON.stringify(formData))}` :
-                    `action=${action}&postData=${encodeURIComponent(JSON.stringify(formData))}`
+                body: postBody
             })
-            .then(response => response.json())
-            .then(result => {
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.text(); // Get as text first
+            })
+            .then(responseText => {
+                console.log('Raw response:', responseText);
+                
+                // Try to parse as JSON
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    console.error('Response was:', responseText);
+                    throw new Error('Server returned invalid JSON. Check console for details.');
+                }
+                
                 if (result.success) {
                     showAlert(editingPageId ? 'Page updated successfully!' : 'Page created successfully!', 'success');
                     hideBusinessPageForm();
@@ -880,6 +917,7 @@
                 }
             })
             .catch(error => {
+                console.error('Save error:', error);
                 showAlert('Error saving page: ' + error.message, 'error');
             })
             .finally(() => {
