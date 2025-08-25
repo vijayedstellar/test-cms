@@ -248,6 +248,12 @@
             font-size: 12px;
             font-weight: 600;
             text-transform: uppercase;
+            transition: all 0.3s;
+        }
+        
+        .status:hover {
+            transform: scale(1.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         
         .status.published {
@@ -255,9 +261,19 @@
             color: #22543d;
         }
         
+        .status.published:hover {
+            background: #9ae6b4;
+            color: #1a202c;
+        }
+        
         .status.draft {
             background: #fed7d7;
             color: #742a2a;
+        }
+        
+        .status.draft:hover {
+            background: #feb2b2;
+            color: #1a202c;
         }
         
         /* Forms */
@@ -514,7 +530,7 @@
 
     <script>
         // Configuration - Replace with your Google Apps Script Web App URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbx-XP3_OUV7vxc4_KX_v0qJex8DbuZ0TcsOfgXgfYYPX78qfOBWMCbJhN6t2Lw4t7hzTg/exec'; // ← UPDATE THIS!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbzB-Ka4xXy3mpQkEk3a0rMHUzOVoEsJwJp_gI4qAQcQqkpFPK8V0ysR926pEccNF_8D5Q/exec'; // ← UPDATE THIS!
         
         let currentUser = null;
         let isLoggedIn = false;
@@ -740,7 +756,13 @@
                         <tr>
                             <td>${page.Title}</td>
                             <td>${page.Slug}</td>
-                            <td><span class="status ${page.Status}">${page.Status}</span></td>
+                            <td>
+                                <span class="status ${page.Status}" style="cursor: pointer;" 
+                                      onclick="togglePageStatus(${page.Page_ID}, '${page.Status}')"
+                                      title="Click to toggle status">
+                                    ${page.Status}
+                                </span>
+                            </td>
                             <td>${formatDate(page.Modified_Date)}</td>
                             <td>
                                 <button class="btn btn-primary btn" onclick="editBusinessPage(${page.Page_ID})">Edit</button>
@@ -1118,18 +1140,107 @@
             }
         }
 
-        // Delete Business Page  
-        async function deleteBusinessPage(pageId) {
-            if (!confirm('Are you sure you want to delete this page?')) {
+        // Toggle Page Status (Publish/Draft)
+        async function togglePageStatus(pageId, currentStatus) {
+            const newStatus = currentStatus === 'published' ? 'draft' : 'published';
+            const actionText = newStatus === 'published' ? 'publish' : 'unpublish';
+            
+            if (!confirm(`Are you sure you want to ${actionText} this page?`)) {
                 return;
             }
 
             try {
-                // Implement delete API call here
-                console.log('Delete page:', pageId);
-                showAlert('Page deleted successfully!', 'success');
-                loadBusinessPages();
+                // Use the saved API URL if available
+                const savedApiUrl = localStorage.getItem('cmsApiUrl') || API_URL;
+                
+                if (savedApiUrl === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    showAlert('Please configure your Google Apps Script URL in Settings first!', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('action', 'updateBusinessPageStatus');
+                formData.append('pageId', pageId);
+                formData.append('status', newStatus);
+
+                console.log(`Changing page ${pageId} status from ${currentStatus} to ${newStatus}`);
+
+                const response = await fetch(savedApiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const responseText = await response.text();
+                console.log('Status update response:', responseText);
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    throw new Error('Server returned invalid response');
+                }
+
+                if (result.success) {
+                    showAlert(`Page ${actionText}ed successfully!`, 'success');
+                    loadBusinessPages(); // Refresh the page list
+                    loadDashboardData(); // Update dashboard counts
+                } else {
+                    throw new Error(result.message || 'Failed to update page status');
+                }
             } catch (error) {
+                console.error('Status update error:', error);
+                showAlert('Error updating page status: ' + error.message, 'error');
+            }
+        }
+
+        // Delete Business Page  
+        async function deleteBusinessPage(pageId) {
+            if (!confirm('Are you sure you want to delete this page? This action cannot be undone.')) {
+                return;
+            }
+
+            try {
+                // Use the saved API URL if available
+                const savedApiUrl = localStorage.getItem('cmsApiUrl') || API_URL;
+                
+                if (savedApiUrl === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    showAlert('Please configure your Google Apps Script URL in Settings first!', 'error');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('action', 'deleteBusinessPage');
+                formData.append('pageId', pageId);
+
+                console.log('Deleting page:', pageId);
+                console.log('Using API URL:', savedApiUrl);
+
+                const response = await fetch(savedApiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const responseText = await response.text();
+                console.log('Delete response:', responseText);
+
+                let result;
+                try {
+                    result = JSON.parse(responseText);
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    throw new Error('Server returned invalid response');
+                }
+
+                if (result.success) {
+                    showAlert('Page deleted successfully!', 'success');
+                    loadBusinessPages(); // Refresh the page list
+                    loadDashboardData(); // Update dashboard counts
+                } else {
+                    throw new Error(result.message || 'Failed to delete page');
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
                 showAlert('Error deleting page: ' + error.message, 'error');
             }
         }
