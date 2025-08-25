@@ -514,7 +514,7 @@
 
     <script>
         // Configuration - Replace with your Google Apps Script Web App URL
-        const API_URL = 'https://script.google.com/macros/s/AKfycbyY_6F4HN6DqMQh4pb0fwgEwMSG82dP_Izi5-JgRTmkyFVI2PmJvHsh0J8HGMGdYJP5Tg/exec'; // ← UPDATE THIS!
+        const API_URL = 'https://script.google.com/macros/s/AKfycbx-XP3_OUV7vxc4_KX_v0qJex8DbuZ0TcsOfgXgfYYPX78qfOBWMCbJhN6t2Lw4t7hzTg/exec'; // ← UPDATE THIS!
         
         let currentUser = null;
         let isLoggedIn = false;
@@ -599,27 +599,34 @@
             loginError.style.display = 'none';
 
             try {
-                // Call your Google Apps Script login API
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `action=login&postData=${encodeURIComponent(JSON.stringify({
-                        username: username,
-                        password: password
-                    }))}`
-                });
-
-                const result = await response.json();
+                // Use the saved API URL if available
+                const savedApiUrl = localStorage.getItem('cmsApiUrl') || API_URL;
                 
-                if (result.success) {
-                    currentUser = result.user;
-                    sessionStorage.setItem('cmsUser', JSON.stringify(currentUser));
-                    showDashboard();
-                    await loadDashboardData();
+                if (savedApiUrl && savedApiUrl !== 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                    // Try API login with FormData
+                    const formData = new FormData();
+                    formData.append('action', 'login');
+                    formData.append('username', username);
+                    formData.append('password', password);
+
+                    const response = await fetch(savedApiUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        currentUser = result.user;
+                        sessionStorage.setItem('cmsUser', JSON.stringify(currentUser));
+                        showDashboard();
+                        await loadDashboardData();
+                        return;
+                    } else {
+                        throw new Error(result.message || 'Login failed');
+                    }
                 } else {
-                    throw new Error(result.message || 'Login failed');
+                    throw new Error('API URL not configured');
                 }
             } catch (error) {
                 // Fallback to simple validation if API fails
